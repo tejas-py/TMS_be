@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from app.api.v1 import users, tasks, auth
 from app.core.config import settings # noqa: F401
 
 app = FastAPI(
@@ -15,6 +16,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(auth.router, prefix="/api/v1/auth", tags=["authentication"])
+app.include_router(users.router, prefix="/api/v1/users", tags=["users"])
+app.include_router(tasks.router, prefix="/api/v1/tasks", tags=["tasks"])
 
 @app.get("/")
 async def root():
