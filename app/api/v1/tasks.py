@@ -6,6 +6,7 @@ from app.models.user import User
 from app.models.task import Task, TaskStatus, TaskPriority
 from app.schemas.task import TaskCreate, TaskResponse, TaskUpdate
 from app.api.v1.auth import get_current_active_user
+from uuid import UUID
 
 router = APIRouter()
 
@@ -44,7 +45,7 @@ async def list_tasks(
     limit: int = Query(10, ge=1, le=100, description="Number of records to return"),
     status: Optional[TaskStatus] = Query(None, description="Filter by status"),
     priority: Optional[TaskPriority] = Query(None, description="Filter by priority"),
-    assignee_id: Optional[int] = Query(None, description="Filter by assignee"),
+    assignee_id: Optional[UUID] = Query(None, description="Filter by assignee"),
     search: Optional[str] = Query(None, description="Search by title or description"),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
@@ -80,7 +81,7 @@ async def list_tasks(
 
 @router.get("/{task_id}", response_model=TaskResponse)
 async def get_task(
-    task_id: int,
+    task_id: UUID,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
 ):
@@ -104,7 +105,7 @@ async def get_task(
 
 @router.put("/{task_id}", response_model=TaskResponse)
 async def update_task(
-    task_id: int,
+    task_id: UUID,
     task_update: TaskUpdate,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
@@ -142,7 +143,7 @@ async def update_task(
 
 @router.delete("/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_task(
-    task_id: int,
+    task_id: UUID,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
 ):

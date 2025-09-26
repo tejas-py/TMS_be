@@ -38,7 +38,6 @@ async def create_admin_user(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Email or username already registered",
         )
-
     hashed_password = get_password_hash(user.password)
     db_user = User(
         email=user.email,
@@ -78,7 +77,7 @@ async def create_user(
         full_name=user.full_name,
         hashed_password=hashed_password,
         is_active=user.is_active,
-        is_admin=user.is_admin,
+        is_admin=False,
     )
     db.add(db_user)
     db.commit()
