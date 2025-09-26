@@ -1,21 +1,32 @@
 from pydantic_settings import BaseSettings
-from os import getenv as ENV
+from pydantic import Field
 
 
 class Settings(BaseSettings):
-    DB_USER = ENV("DB_USER")
-    DB_PASS = ENV("DB_PASS")
-    DB_ENV = ENV("DB_ENV")
-    DB_NAME = ENV("DB_NAME")
+    DB_USER: str = Field(..., env="DB_USER")
+    DB_PASS: str = Field(..., env="DB_PASS")
+    DB_ENV: str = Field(..., env="DB_ENV")
+    DB_NAME: str = Field(..., env="DB_NAME")
 
-    SECRET_KEY = ENV("SECRET_KEY")
-    ALGORITHM = ENV("ALGORITHM")
-    ACCESS_TOKEN_EXPIRE_MINUTES = ENV("ACCESS_TOKEN_EXPIRE_MINUTES")
+    SECRET_KEY: str = Field(..., env="SECRET_KEY")
+    ALGORITHM: str = Field(..., env="ALGORITHM")
+    ACCESS_TOKEN_EXPIRE_MINUTES: str = Field(..., env="ACCESS_TOKEN_EXPIRE_MINUTES")
 
-    database_url: str = f"postgresql://{DB_USER}:{DB_PASS}@{DB_ENV}:5432/{DB_NAME}"
-    secret_key: str = SECRET_KEY
-    algorithm: str = ALGORITHM
-    access_token_expire_minutes: int = ACCESS_TOKEN_EXPIRE_MINUTES
+    @property
+    def database_url(self) -> str:
+        return f"postgresql://{self.DB_USER}:{self.DB_PASS}@{self.DB_ENV}:5432/{self.DB_NAME}"
+
+    @property
+    def secret_key(self) -> str:
+        return self.SECRET_KEY
+
+    @property
+    def algorithm(self) -> str:
+        return self.ALGORITHM
+
+    @property
+    def access_token_expire_minutes(self) -> int:
+        return int(self.ACCESS_TOKEN_EXPIRE_MINUTES)
 
     class Config:
         env_file = ".env"

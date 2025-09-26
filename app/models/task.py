@@ -1,5 +1,4 @@
 from sqlalchemy import (
-    Integer,
     String,
     Boolean,
     DateTime,
@@ -43,11 +42,11 @@ class Task(Base):
     priority: Mapped[Enum] = mapped_column(
         SQLEnum(TaskPriority), default=TaskPriority.medium
     )
-    assignee_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("users.id"), nullable=True
+    assignee_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id"), nullable=True
     )
-    created_by: Mapped[int] = mapped_column(
-        Integer, ForeignKey("users.id"), nullable=False
+    created_by: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id"), nullable=False
     )
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     due_date: Mapped[Enum] = mapped_column(DateTime(timezone=True), nullable=True)

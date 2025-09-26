@@ -1,13 +1,57 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 from typing import List, Optional
+import uuid
 from app.db.database import get_db
 from app.models.user import User
-from app.schemas.user import UserCreate, UserResponse, UserUpdate
+from app.schemas.user import UserCreate, UserResponse, UserUpdate, AdminUserCreate
 from app.core.security import get_password_hash
 from app.api.v1.auth import get_current_active_user, get_current_admin_user
 
 router = APIRouter()
+
+
+@router.post("/admin", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
+async def create_admin_user(
+    user: AdminUserCreate,
+    db: Session = Depends(get_db),
+):
+    """
+    Create the first admin user. This endpoint can only be used when no admin users exist.
+    """
+    # Check if any admin user already exists
+    existing_admin = db.query(User).filter(User.is_admin == True).first()
+    if existing_admin:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Admin user already exists. Use regular user creation endpoint.",
+        )
+
+    # Check if email or username already exists
+    db_user = (
+        db.query(User)
+        .filter((User.email == user.email) | (User.username == user.username))
+        .first()
+    )
+    if db_user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Email or username already registered",
+        )
+
+    hashed_password = get_password_hash(user.password)
+    db_user = User(
+        email=user.email,
+        username=user.username,
+        full_name=user.full_name,
+        hashed_password=hashed_password,
+        is_active=True,
+        is_admin=True,  # Always create as admin
+    )
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    return db_user
 
 
 @router.post("/", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
@@ -65,7 +109,7 @@ async def list_users(
 
 @router.get("/{user_id}", response_model=UserResponse)
 async def get_user(
-    user_id: int,
+    user_id: uuid.UUID,
     db: Session = Depends(get_db),
     _: User = Depends(get_current_active_user),
 ):
@@ -79,7 +123,7 @@ async def get_user(
 
 @router.put("/{user_id}", response_model=UserResponse)
 async def update_user(
-    user_id: int,
+    user_id: uuid.UUID,
     user_update: UserUpdate,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
