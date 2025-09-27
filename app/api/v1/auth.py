@@ -66,4 +66,5 @@ async def login(
         "token_type": "bearer",
         "user_id": user.id,
         "username": user.username,
+        "is_admin": user.is_admin,
     }

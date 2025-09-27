@@ -34,6 +34,7 @@ class UserResponse(UserBase):
     id: uuid.UUID
     created_at: datetime
     updated_at: datetime
+    is_admin: bool
 
     class Config:
         from_attributes = True

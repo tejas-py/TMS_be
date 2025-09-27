@@ -8,6 +8,7 @@ class Token(BaseModel):
     token_type: str
     user_id: UUID
     username: str
+    is_admin: bool
 
 
 class TokenData(BaseModel):
