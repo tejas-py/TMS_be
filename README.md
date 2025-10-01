@@ -371,13 +371,6 @@ Rollback migration:
 alembic downgrade -1
 ```
 
-## Testing
-
-The project includes `pytest` and `httpx` for testing. Run tests with:
-```bash
-pytest
-```
-
 ## Stopping the Application
 
 Press `Ctrl+C` in the terminal running uvicorn
